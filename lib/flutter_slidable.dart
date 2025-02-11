@@ -1,5 +1,6 @@
 library flutter_slidable;
 
+export 'src/action_pane.dart';
 export 'src/action_pane_motions.dart';
 export 'src/actions.dart';
 export 'src/auto_close_behavior.dart'
@@ -15,3 +16,4 @@ export 'src/notifications_old.dart'
         SlidableRatioNotification,
         SlidableNotificationListener;
 export 'src/slidable.dart';
+export 'src/slidable_list_tile.dart';

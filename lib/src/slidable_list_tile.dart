@@ -1,8 +1,7 @@
 import 'package:flutter/gestures.dart';
-import 'package:flutter/widgets.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_slidable/src/action_pane.dart';
 import 'package:flutter_slidable/src/auto_close_behavior.dart';
-import 'package:flutter_slidable/src/notifications_old.dart';
 
 import 'action_pane_configuration.dart';
 import 'controller.dart';
@@ -11,12 +10,12 @@ import 'gesture_detector.dart';
 import 'scrolling_behavior.dart';
 
 /// A widget which can be dragged to reveal contextual actions.
-class Slidable extends StatefulWidget {
+class SlidableListTile extends StatefulWidget {
   /// Creates a [Slidable].
   ///
   /// The [enabled], [closeOnScroll], [direction], [dragStartBehavior],
   /// [useTextDirection] and [child] arguments must not be null.
-  const Slidable({
+  const SlidableListTile({
     super.key,
     this.controller,
     this.groupTag,
@@ -27,7 +26,9 @@ class Slidable extends StatefulWidget {
     this.direction = Axis.horizontal,
     this.dragStartBehavior = DragStartBehavior.down,
     this.useTextDirection = true,
-    required this.child,
+    this.leading,
+    this.title,
+    this.subTitle,
   });
 
   /// The Slidable widget controller.
@@ -102,10 +103,12 @@ class Slidable extends StatefulWidget {
   /// The widget below this widget in the tree.
   ///
   /// {@macro flutter.widgets.ProxyWidget.child}
-  final Widget child;
 
-  @override
-  _SlidableState createState() => _SlidableState();
+  final Widget? leading;
+
+  final Widget? title;
+
+  final Widget? subTitle;
 
   /// The closest instance of the [SlidableController] which controls this
   /// [Slidable] that encloses the given context.
@@ -123,10 +126,15 @@ class Slidable extends StatefulWidget {
         ?.widget as _SlidableControllerScope?;
     return scope?.controller;
   }
+
+  @override
+  State<StatefulWidget> createState() => _SlidableListTileState();
 }
 
-class _SlidableState extends State<Slidable>
-    with TickerProviderStateMixin, AutomaticKeepAliveClientMixin {
+class _SlidableListTileState extends State<SlidableListTile>
+    with
+        TickerProviderStateMixin<SlidableListTile>,
+        AutomaticKeepAliveClientMixin<SlidableListTile> {
   late final SlidableController controller;
   late Animation<Offset> moveAnimation;
   late bool keepPanesOrder;
@@ -150,7 +158,7 @@ class _SlidableState extends State<Slidable>
   }
 
   @override
-  void didUpdateWidget(covariant Slidable oldWidget) {
+  void didUpdateWidget(covariant SlidableListTile oldWidget) {
     super.didUpdateWidget(oldWidget);
 
     if (oldWidget.controller != widget.controller) {
@@ -161,6 +169,7 @@ class _SlidableState extends State<Slidable>
     }
 
     updateIsLeftToRight();
+
     updateController();
   }
 
@@ -241,14 +250,38 @@ class _SlidableState extends State<Slidable>
 
   @override
   Widget build(BuildContext context) {
-    super.build(context); // See AutomaticKeepAliveClientMixin.
+    super.build(context);
 
-    Widget content = SlideTransition(
+    Widget content = ListTile(
+      leading: widget.leading,
+      title: widget.title,
+      subtitle: widget.subTitle,
+      trailing: SlidableGestureDetector(
+        enabled: widget.enabled,
+        controller: controller,
+        direction: widget.direction,
+        dragStartBehavior: widget.dragStartBehavior,
+        fullScreenWidth: true,
+        child: Container(
+          width: 64,
+          height: double.infinity,
+          alignment: Alignment.centerRight,
+          padding: const EdgeInsets.only(right: 16),
+          child: const Icon(
+            Icons.more_horiz_rounded,
+            color: Colors.grey,
+            size: 16,
+          ),
+        ),
+      ),
+    );
+
+    content = SlideTransition(
       position: moveAnimation,
       child: SlidableAutoCloseBehaviorInteractor(
         groupTag: widget.groupTag,
         controller: controller,
-        child: widget.child,
+        child: content,
       ),
     );
 
@@ -268,30 +301,23 @@ class _SlidableState extends State<Slidable>
       ],
     );
 
-    return SlidableGestureDetector(
-      enabled: widget.enabled,
+    return SlidableAutoCloseNotificationSender(
       controller: controller,
-      direction: widget.direction,
-      dragStartBehavior: widget.dragStartBehavior,
-      fullScreenWidth: false,
-      child: SlidableNotificationSender(
-        tag: widget.groupTag,
+      groupTag: widget.groupTag,
+      child: SlidableScrollingBehavior(
         controller: controller,
-        child: SlidableScrollingBehavior(
+        closeOnScroll: widget.closeOnScroll,
+        child: SlidableDismissal(
+          axis: flipAxis(widget.direction),
           controller: controller,
-          closeOnScroll: widget.closeOnScroll,
-          child: SlidableDismissal(
-            axis: flipAxis(widget.direction),
-            controller: controller,
-            child: ActionPaneConfiguration(
-              alignment: actionPaneAlignment,
-              direction: widget.direction,
-              isStartActionPane:
-                  controller.actionPaneType.value == ActionPaneType.start,
-              child: _SlidableControllerScope(
-                controller: controller,
-                child: content,
-              ),
+          child: ActionPaneConfiguration(
+            alignment: actionPaneAlignment,
+            direction: widget.direction,
+            isStartActionPane:
+                controller.actionPaneType.value == ActionPaneType.start,
+            child: _SlidableControllerScope(
+              controller: controller,
+              child: content,
             ),
           ),
         ),
@@ -342,6 +368,7 @@ class _SlidableClipper extends CustomClipper<Rect> {
             size.height,
           );
         }
+
         return Rect.fromLTRB(0, 0, size.width, offset);
     }
   }

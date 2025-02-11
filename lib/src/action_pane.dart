@@ -1,4 +1,7 @@
-part of 'slidable.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_slidable/src/action_pane_configuration.dart';
+import 'package:flutter_slidable/src/controller.dart';
+import 'package:flutter_slidable/src/slidable.dart';
 
 const _defaultExtentRatio = 0.5;
 
