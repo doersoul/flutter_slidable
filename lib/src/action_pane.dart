@@ -124,8 +124,7 @@ class _ActionPaneState extends State<ActionPane> implements RatioConfigurator {
   void initState() {
     super.initState();
 
-    controller = Slidable.of(context);
-    controller ??= SlidableListTile.of(context);
+    controller = Slidable.of(context) ?? SlidableListTile.of(context);
 
     controller!.endGesture.addListener(handleEndGestureChanged);
 
