@@ -1,8 +1,4 @@
-import 'package:flutter/material.dart';
-import 'package:flutter_slidable/src/action_pane_configuration.dart';
-import 'package:flutter_slidable/src/controller.dart';
-import 'package:flutter_slidable/src/slidable.dart';
-import 'package:flutter_slidable/src/slidable_list_tile.dart';
+part of 'slidable.dart';
 
 const _defaultExtentRatio = 0.5;
 
@@ -123,17 +119,13 @@ class _ActionPaneState extends State<ActionPane> implements RatioConfigurator {
   @override
   void initState() {
     super.initState();
-
-    controller = Slidable.of(context) ?? SlidableListTile.of(context);
-
+    controller = Slidable.of(context);
     controller!.endGesture.addListener(handleEndGestureChanged);
 
     if (widget.dismissible != null) {
       controller!.animation.addListener(handleRatioChanged);
     }
-
     updateThresholds();
-
     controller!.actionPaneConfigurator = this;
   }
 

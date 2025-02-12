@@ -1,6 +1,5 @@
 import 'package:flutter/gestures.dart';
-import 'package:flutter/widgets.dart';
-import 'package:flutter_slidable/src/action_pane.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_slidable/src/auto_close_behavior.dart';
 import 'package:flutter_slidable/src/notifications_old.dart';
 
@@ -9,6 +8,8 @@ import 'controller.dart';
 import 'dismissal.dart';
 import 'gesture_detector.dart';
 import 'scrolling_behavior.dart';
+
+part 'action_pane.dart';
 
 /// A widget which can be dragged to reveal contextual actions.
 class Slidable extends StatefulWidget {
@@ -27,7 +28,11 @@ class Slidable extends StatefulWidget {
     this.direction = Axis.horizontal,
     this.dragStartBehavior = DragStartBehavior.down,
     this.useTextDirection = true,
-    required this.child,
+    this.child,
+    this.leading,
+    this.title,
+    this.subTitle,
+    this.trailing,
   });
 
   /// The Slidable widget controller.
@@ -102,7 +107,16 @@ class Slidable extends StatefulWidget {
   /// The widget below this widget in the tree.
   ///
   /// {@macro flutter.widgets.ProxyWidget.child}
-  final Widget child;
+  final Widget? child;
+
+  /// List Tile
+  final Widget? leading;
+
+  final Widget? title;
+
+  final Widget? subTitle;
+
+  final Widget? trailing;
 
   @override
   _SlidableState createState() => _SlidableState();
@@ -239,16 +253,13 @@ class _SlidableState extends State<Slidable>
     }
   }
 
-  @override
-  Widget build(BuildContext context) {
-    super.build(context); // See AutomaticKeepAliveClientMixin.
-
+  Widget _buildContent() {
     Widget content = SlideTransition(
       position: moveAnimation,
       child: SlidableAutoCloseBehaviorInteractor(
         groupTag: widget.groupTag,
         controller: controller,
-        child: widget.child,
+        child: widget.child ?? const SizedBox.shrink(),
       ),
     );
 
@@ -297,6 +308,88 @@ class _SlidableState extends State<Slidable>
         ),
       ),
     );
+  }
+
+  Widget _buildListTile() {
+    Widget content = widget.trailing ??
+        Container(
+          height: double.infinity,
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: const Icon(
+            Icons.more_horiz_rounded,
+            color: Colors.grey,
+            size: 24,
+          ),
+        );
+
+    content = ListTile(
+      leading: widget.leading,
+      title: widget.title,
+      subtitle: widget.subTitle,
+      trailing: SlidableGestureDetector(
+        enabled: widget.enabled,
+        controller: controller,
+        direction: widget.direction,
+        dragStartBehavior: widget.dragStartBehavior,
+        fullScreenWidth: true,
+        child: content,
+      ),
+    );
+
+    content = SlideTransition(
+      position: moveAnimation,
+      child: SlidableAutoCloseBehaviorInteractor(
+        groupTag: widget.groupTag,
+        controller: controller,
+        child: content,
+      ),
+    );
+
+    content = Stack(
+      children: <Widget>[
+        if (actionPane != null)
+          Positioned.fill(
+            child: ClipRect(
+              clipper: _SlidableClipper(
+                axis: widget.direction,
+                controller: controller,
+              ),
+              child: actionPane,
+            ),
+          ),
+        content,
+      ],
+    );
+
+    return SlidableAutoCloseNotificationSender(
+      controller: controller,
+      groupTag: widget.groupTag,
+      child: SlidableScrollingBehavior(
+        controller: controller,
+        closeOnScroll: widget.closeOnScroll,
+        child: SlidableDismissal(
+          axis: flipAxis(widget.direction),
+          controller: controller,
+          child: ActionPaneConfiguration(
+            alignment: actionPaneAlignment,
+            direction: widget.direction,
+            isStartActionPane:
+                controller.actionPaneType.value == ActionPaneType.start,
+            child: _SlidableControllerScope(
+              controller: controller,
+              child: content,
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    super.build(context); // See AutomaticKeepAliveClientMixin.
+
+    return widget.title != null ? _buildListTile() : _buildContent();
   }
 }
 

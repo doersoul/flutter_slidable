@@ -25,7 +25,6 @@ void main() {
           child: SlidableGestureDetector(
             controller: slidableController,
             direction: Axis.horizontal,
-            fullScreenWidth: false,
             child: const SizedBox.expand(),
           ),
         ),
