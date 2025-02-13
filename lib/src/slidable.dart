@@ -325,7 +325,9 @@ class _SlidableState extends State<Slidable>
     Widget content = widget.trailing ??
         Container(
           height: double.infinity,
-          padding: const EdgeInsets.symmetric(horizontal: 16),
+          padding: EdgeInsets.symmetric(
+            horizontal: widget.contentPadding ?? 16,
+          ),
           child: const Icon(
             Icons.more_horiz_rounded,
             color: Colors.grey,
