@@ -29,6 +29,7 @@ class Slidable extends StatefulWidget {
     this.dragStartBehavior = DragStartBehavior.down,
     this.useTextDirection = true,
     this.child,
+    this.contentPadding,
     this.leading,
     this.title,
     this.subTitle,
@@ -109,7 +110,9 @@ class Slidable extends StatefulWidget {
   /// {@macro flutter.widgets.ProxyWidget.child}
   final Widget? child;
 
-  /// List Tile
+  /// ListTile widget config
+  final double? contentPadding;
+
   final Widget? leading;
 
   final Widget? title;
@@ -253,6 +256,14 @@ class _SlidableState extends State<Slidable>
     }
   }
 
+  void _onTapTrailing() {
+    if (controller.direction.value != 0) {
+      controller.close();
+    } else {
+      controller.openEndActionPane();
+    }
+  }
+
   Widget _buildContent() {
     Widget content = SlideTransition(
       position: moveAnimation,
@@ -322,10 +333,15 @@ class _SlidableState extends State<Slidable>
           ),
         );
 
+    content = GestureDetector(onTap: _onTapTrailing, child: content);
+
     content = ListTile(
       leading: widget.leading,
       title: widget.title,
       subtitle: widget.subTitle,
+      titleAlignment: ListTileTitleAlignment.center,
+      minVerticalPadding: widget.subTitle == null ? 20 : 16,
+      contentPadding: EdgeInsets.only(left: widget.contentPadding ?? 16),
       trailing: SlidableGestureDetector(
         enabled: widget.enabled,
         controller: controller,
