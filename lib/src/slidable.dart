@@ -108,17 +108,22 @@ class Slidable extends StatefulWidget {
   /// The widget below this widget in the tree.
   ///
   /// {@macro flutter.widgets.ProxyWidget.child}
+  /// todo check, update by doersoul@126.com
   final Widget? child;
 
-  /// ListTile widget config
+  /// todo check, add by doersoul@126.com
   final double? contentPadding;
 
+  /// todo check, add by doersoul@126.com
   final Widget? leading;
 
+  /// todo check, add by doersoul@126.com
   final Widget? title;
 
+  /// todo check, add by doersoul@126.com
   final Widget? subTitle;
 
+  /// todo check, add by doersoul@126.com
   final Widget? trailing;
 
   @override
@@ -256,6 +261,7 @@ class _SlidableState extends State<Slidable>
     }
   }
 
+  /// todo check, add by doersoul@126.com
   void _onTapTrailing() {
     if (controller.direction.value != 0) {
       controller.close();

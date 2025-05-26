@@ -21,6 +21,8 @@ class SlidableGestureDetector extends StatefulWidget {
   final Widget child;
   final Axis direction;
   final bool enabled;
+
+  /// todo check, add by doersoul@126.com
   final bool fullScreenWidth;
 
   /// Determines the way that drag start behavior is handled.
@@ -74,7 +76,7 @@ class _SlidableGestureDetectorState extends State<SlidableGestureDetector> {
   double get overallDragAxisExtent {
     final Size? size = context.size;
 
-    // todo: tips: modify here - size
+    // todo check, add by doersoul@126.com
     if (widget.fullScreenWidth) {
       return directionIsXAxis ? MediaQuery.sizeOf(context).width : size!.height;
     }
